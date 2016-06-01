@@ -9,10 +9,11 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.christina.tracker.data.NavData
 import rx.Observable
 import rx.Subscription
+import rx.android.schedulers.AndroidSchedulers
 import rx.subjects.BehaviorSubject
+import rx.subjects.PublishSubject
 import timber.log.Timber
 
 /**
@@ -24,6 +25,7 @@ public class MainActivity: Activity() {
   var counter = 0
   val adapter: NavListAdapter by lazy { NavListAdapter(navDataSource.asObservable()) }
   var creationObs: Subscription? = null
+
 
   override fun onCreate(savedInstanceBundle: Bundle?) {
     super.onCreate(savedInstanceBundle)
@@ -37,6 +39,16 @@ public class MainActivity: Activity() {
     val newVal = currVal + "$counter"
     navDataSource.onNext(newVal)
     adapter.notifyDataSetChanged()
+
+    adapter.newExercize.observeOn(AndroidSchedulers.mainThread()).subscribe(
+            {
+              navDataSource.onNext(navDataSource.value + "new exc")
+              adapter.notifyDataSetChanged()
+            },
+            { e ->
+              Timber.e("Error in the add logic $e")
+            }
+    )
   }
 
   private fun configureNavigationDrawer() {
@@ -54,6 +66,8 @@ public class NavListAdapter: RecyclerView.Adapter<BaseNavDrawerViewHolder> {
   private final val NAV_ITEM_TYPE = 0
   private final val NAV_TITLE_TYPE = 1
   private final val NAV_ADD_TYPE = 2
+
+  val newExercize: PublishSubject<String> by lazy { PublishSubject.create<String>() }
 
   private var listData: List<String> = emptyList()
   private var sub: Subscription? = null
@@ -81,9 +95,11 @@ public class NavListAdapter: RecyclerView.Adapter<BaseNavDrawerViewHolder> {
       }
       is NavDrawerTitleViewHolder -> {
         val pojo = NavDrawerPojo("$data number 1", "$data number 2")
-        val pojo2 = NavData("$data number 1", "$data number 2")
-        holder.getHolderBinding().setTitleData(pojo2)
+        holder.getHolderBinding().setTitleData(pojo)
         holder.getHolderBinding().executePendingBindings()
+      }
+      is NavDrawerAddViewHolder -> {
+        //no op
       }
     }
   }
@@ -98,6 +114,10 @@ public class NavListAdapter: RecyclerView.Adapter<BaseNavDrawerViewHolder> {
         val view = LayoutInflater.from(parent?.getContext()).inflate(R.layout.nav_item_header, parent, false)
         return NavDrawerTitleViewHolder(view)
       }
+      NAV_ADD_TYPE -> {
+        val view = LayoutInflater.from(parent?.getContext()).inflate(R.layout.nav_item_add, parent, false)
+        return NavDrawerAddViewHolder(view, newExercize)
+      }
     }
     throw Error("Could not determine a valid view holder for unsupported type $viewType in onCreateViewHolder")
   }
@@ -108,6 +128,7 @@ public class NavListAdapter: RecyclerView.Adapter<BaseNavDrawerViewHolder> {
 
   override fun getItemViewType(position: Int): Int {
     if (position == 0) return NAV_TITLE_TYPE
+    else if (position == listData.count() - 1) return NAV_ADD_TYPE
 
     return NAV_ITEM_TYPE
   }

@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:bind="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="titleData" type="com.christina.tracker.data.NavData"/>
+        <variable name="titleData" type="com.christina.tracker.NavDrawerPojo"/>
     </data>
 
     <LinearLayout

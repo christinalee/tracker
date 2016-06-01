@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.TextView
 import com.christina.tracker.databinding.NavItemHeaderBinding
 import com.christina.tracker.databinding.NavItemRowBinding
+import rx.subjects.PublishSubject
+import timber.log.Timber
 
 /**
  * Created by christina on 5/30/16.
@@ -15,15 +17,13 @@ import com.christina.tracker.databinding.NavItemRowBinding
 abstract  class BaseNavDrawerViewHolder: RecyclerView.ViewHolder {
   constructor(itemView: View?): super(itemView) {}
   //todo: make abstract getHolderBinding()
-  abstract fun getHolderBinding(): ViewDataBinding
+  abstract fun getHolderBinding(): ViewDataBinding?
 }
 
 class NavDrawerItemViewHolder : BaseNavDrawerViewHolder {
   private val binding: NavItemRowBinding
-//  val textView: TextView?
 
   constructor(itemView: View?): super(itemView) {
-//    textView = itemView?.findViewById(R.id.navItemRowText) as TextView?
     binding = DataBindingUtil.bind(itemView)
   }
 
@@ -34,12 +34,8 @@ class NavDrawerItemViewHolder : BaseNavDrawerViewHolder {
 
 class NavDrawerTitleViewHolder : BaseNavDrawerViewHolder {
   private val binding: NavItemHeaderBinding
-//  val textView1: TextView?
-//  val textView2: TextView?
 
   constructor(itemView: View?): super(itemView) {
-//    textView1 = itemView?.findViewById(R.id.navItemHeaderText1) as TextView?
-//    textView2 = itemView?.findViewById(R.id.navItemHeaderText2) as TextView?
     binding = DataBindingUtil.bind(itemView)
   }
 
@@ -48,7 +44,20 @@ class NavDrawerTitleViewHolder : BaseNavDrawerViewHolder {
   }
 }
 
-//class NavDrawerAddViewHolder : BaseNavDrawerViewHolder {
-//
-//  constructor(itemView: View?): super(itemView) { }
-//}
+class NavDrawerAddViewHolder : BaseNavDrawerViewHolder {
+  val newExercize: PublishSubject<String>
+
+  constructor(itemView: View?, newExercize: PublishSubject<String>): super(itemView) {
+    this.newExercize = newExercize
+
+    itemView?.isClickable = true
+    itemView?.setOnClickListener {
+      Timber.i("add was clicked")
+      newExercize.onNext("")
+    }
+  }
+
+  override fun getHolderBinding(): ViewDataBinding? {
+    return null
+  }
+}
