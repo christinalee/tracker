@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:bind="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="titleData" type="com.christina.tracker.data.NavData"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/navItemHeaderText1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{titleData.string1}"/>
+        <TextView
+            android:id="@+id/navItemHeaderText2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{titleData.string2}"/>
+    </LinearLayout>
+</layout>
