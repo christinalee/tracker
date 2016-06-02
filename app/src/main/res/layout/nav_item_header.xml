@@ -1,23 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:bind="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
         <variable name="titleData" type="com.christina.tracker.NavDrawerPojo"/>
     </data>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/navItemHeaderText1"
-            android:layout_width="wrap_content"
+        android:layout_height="160dp"
+        android:orientation="vertical"
+        android:gravity="center">
+        <ImageView
+            android:id="@+id/headerBackgroundImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/header_background"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{titleData.string1}"/>
-        <TextView
-            android:id="@+id/navItemHeaderText2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{titleData.string2}"/>
-    </LinearLayout>
+            android:orientation="vertical"
+            android:layout_margin="8dp"
+            android:layout_gravity="left|bottom">
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/profile_image"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="left"
+                android:src="@drawable/profile_avatar"
+                android:layout_marginBottom="12dp"
+                app:civ_fill_color="@color/darkGrey"
+                app:civ_border_width="2dp"
+                app:civ_border_color="@color/lightGray"/>
+            <TextView
+                android:id="@+id/navItemHeaderText1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginBottom="4dp"
+                android:textSize="20sp"
+                android:textColor="@color/lightGray"
+                android:text="@{titleData.string1}"/>
+            <TextView
+                android:id="@+id/navItemHeaderText2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:textSize="14sp"
+                android:textColor="@color/lightGray"
+                android:text="@{titleData.string2}"/>
+        </LinearLayout>
+    </FrameLayout>
 </layout>

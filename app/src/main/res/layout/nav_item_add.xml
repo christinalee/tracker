@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="32dp">
 
+    <!--todo: make this a button-->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="20dp"
+        android:textColor="@color/accentBlue"
         android:text="Add"
         android:gravity="center"/>
-</LinearLayout>
+</RelativeLayout>

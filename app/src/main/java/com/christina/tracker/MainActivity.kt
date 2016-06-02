@@ -94,7 +94,7 @@ public class NavListAdapter: RecyclerView.Adapter<BaseNavDrawerViewHolder> {
         holder.getHolderBinding().executePendingBindings()
       }
       is NavDrawerTitleViewHolder -> {
-        val pojo = NavDrawerPojo("$data number 1", "$data number 2")
+        val pojo = NavDrawerPojo("Christina Lee", "cml446@gmail.com")
         holder.getHolderBinding().setTitleData(pojo)
         holder.getHolderBinding().executePendingBindings()
       }

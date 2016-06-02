@@ -4,16 +4,17 @@
         <variable name="itemData" type="String"/>
     </data>
 
-    <LinearLayout android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:background="@color/lightGray">
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:gravity="center_vertical|left"
+                    android:background="@color/lightGray">
 
         <TextView
             android:id="@+id/navItemRowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:text="@{itemData}"/>
-    </LinearLayout>
+    </RelativeLayout>
 </layout>
