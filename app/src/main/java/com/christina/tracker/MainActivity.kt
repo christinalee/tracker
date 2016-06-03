@@ -4,6 +4,9 @@ import com.christina.tracker.R
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.support.v4.app.FragmentActivity
+import android.support.v4.view.PagerAdapter
+import android.support.v4.view.ViewPager
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -20,12 +23,13 @@ import timber.log.Timber
  * Created by christina on 2/7/16.
  */
 
-public class MainActivity: Activity() {
+public class MainActivity: FragmentActivity() {
   val navDataSource: BehaviorSubject<List<String>> by lazy { BehaviorSubject.create<List<String>>(listOf("a", "b")) }
   var counter = 0
   val adapter: NavListAdapter by lazy { NavListAdapter(navDataSource.asObservable()) }
   var creationObs: Subscription? = null
 
+  val collectionPagerAdapter: PagerAdapter by lazy { CollectionPagerAdapter(supportFragmentManager) }
 
   override fun onCreate(savedInstanceBundle: Bundle?) {
     super.onCreate(savedInstanceBundle)
@@ -33,6 +37,7 @@ public class MainActivity: Activity() {
     setContentView(R.layout.activity_main)
 
     configureNavigationDrawer()
+    configureSwipeablePager()
 
     //test code
     val currVal = navDataSource.value
@@ -49,6 +54,11 @@ public class MainActivity: Activity() {
               Timber.e("Error in the add logic $e")
             }
     )
+  }
+
+  private fun configureSwipeablePager() {
+    val pager = findViewById(R.id.main_view) as ViewPager
+    pager.adapter = collectionPagerAdapter
   }
 
   private fun configureNavigationDrawer() {
