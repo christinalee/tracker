@@ -34,6 +34,18 @@ dependencies {
     compile 'io.reactivex:rxandroid:0.25.0'
     compile 'de.hdodenhof:circleimageview:2.0.0'
 
+    compile 'com.google.firebase:firebase-auth:9.0.2'
+    compile 'com.google.android.gms:play-services-auth:9.0.2'
+
+    compile 'com.google.android.gms:play-services-identity:9.0.2'
+    compile 'pub.devrel:easypermissions:0.1.5'
+    compile('com.google.api-client:google-api-client-android:1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    compile('com.google.apis:google-api-services-sheets:v4-rev2-1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+
     kapt 'com.android.databinding:compiler:2.1.0'
 }
 
@@ -55,3 +67,5 @@ repositories {
 kapt {
     generateStubs = true
 }
+
+apply plugin: 'com.google.gms.google-services'
