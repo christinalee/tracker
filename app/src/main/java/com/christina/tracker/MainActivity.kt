@@ -1,134 +1,130 @@
 package com.christina.tracker
 
-import android.accounts.AccountManager
-import com.christina.tracker.R
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.ViewGroup
+import android.widget.Toast
+import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.util.ExponentialBackOff
-import com.google.api.services.sheets.v4.SheetsScopes
-import pub.devrel.easypermissions.AfterPermissionGranted
-import pub.devrel.easypermissions.EasyPermissions
-import rx.Observable
-import rx.Subscription
-import rx.android.schedulers.AndroidSchedulers
-import rx.subjects.BehaviorSubject
-import rx.subjects.PublishSubject
+import com.google.android.gms.auth.api.signin.GoogleSignInResult
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.Scope
+import com.google.firebase.auth.*
 import timber.log.Timber
 
 /**
  * Created by christina on 2/7/16.
  */
 
-public class MainActivity: Activity(), EasyPermissions.PermissionCallbacks {
-    companion object {
-        const val REQUEST_ACCOUNT_PICKER = 1000
-        const val REQUEST_AUTHORIZATION = 1001
-        const val REQUEST_GOOGLE_PLAY_SERVICES = 1002
-        const val REQUEST_PERMISSION_GET_ACCOUNTS = 1003
-        const val PREF_ACCOUNT_NAME = "accountName";
+class MainActivity: BaseFragmentActivity(), GoogleApiClient.OnConnectionFailedListener {
+  companion object {
+    const val RC_SIGN_IN = 9001
+  }
 
-        final val SHEET_SCOPE: List<String> = listOf(SheetsScopes.SPREADSHEETS)
+  var googleApiClient: GoogleApiClient? = null
+  var auth: FirebaseAuth? = null
+  var authListener: FirebaseAuth.AuthStateListener? = null
+
+  override fun onCreate(savedInstanceBundle: Bundle?) {
+    super.onCreate(savedInstanceBundle)
+
+    setContentView(R.layout.activity_sign_in)
+
+    val gso: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(getString(R.string.default_web_client_id))
+        .requestScopes(Scope("https://www.googleapis.com/auth/spreadsheets"))
+        .build()
+
+
+    googleApiClient = GoogleApiClient.Builder(this)
+        .enableAutoManage(this, this)
+        .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+        .build()
+
+    auth = FirebaseAuth.getInstance()
+
+    authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+      val user: FirebaseUser? = firebaseAuth.currentUser
+      if (user != null) {
+        // User is signed in
+        Timber.d("onAuthStateChanged:signed_in:" + user.uid);
+        NavigationUtils.goToSwipeableActivity(this@MainActivity)
+      } else {
+        // User is signed out
+        Timber.d("onAuthStateChanged:signed_out");
+      }
     }
 
-    var credential: GoogleAccountCredential? = null
-
-    override fun onCreate(savedInstanceBundle: Bundle?) {
-        super.onCreate(savedInstanceBundle)
-
-        setContentView(R.layout.activity_sign_in)
-
-//    val gso: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//            .requestIdToken(getString(R.string.default_web_client_id))
-//            .requestEmail()
-//            .re
-//            .build();
-
-        val signInButton = findViewById(R.id.signInButton)
-        signInButton.setOnClickListener {
-            Timber.i("logging in!")
-//      NavigationUtils.goToSwipeableActivity(this)
-            getAccount()
-        }
-
-        credential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), SHEET_SCOPE)
-                .setBackOff(ExponentialBackOff());
+    val signInButton = findViewById(R.id.signInButton)
+    signInButton.setOnClickListener {
+      signIn()
     }
+  }
 
-    @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
-    private fun getAccount() {
-        if (EasyPermissions.hasPermissions(
-                this, android.Manifest.permission.GET_ACCOUNTS)) {
-            val accountName = getPreferences(Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
-            if (accountName != null) {
-                credential?.setSelectedAccountName(accountName);
-                getResultsFromApi();
-            } else {
-                // Start a dialog from which the user can choose an account
-                startActivityForResult(
-                        credential?.newChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
+  override fun onStart() {
+    super.onStart()
+    authListener?.let { auth?.addAuthStateListener(it) }
+  }
+
+  override fun onStop() {
+    super.onStop()
+    authListener?.let { auth?.removeAuthStateListener(it) }
+  }
+
+  override fun onConnectionFailed(result: ConnectionResult) {
+    Timber.e("Connection failed $result")
+  }
+
+  private fun signIn() {
+    val signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+    startActivityForResult(signInIntent, RC_SIGN_IN)
+  }
+
+  override public fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    super.onActivityResult(requestCode, resultCode, data)
+
+    // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...)
+    if (requestCode == RC_SIGN_IN) {
+      val result: GoogleSignInResult = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+      handleSignInResult(result);
+    }
+  }
+
+  private fun handleSignInResult(result: GoogleSignInResult) {
+    Timber.d("handleSignInResult:" + result.isSuccess);
+    if (result.isSuccess) {
+      // Signed in successfully, show authenticated UI.
+      val acct: GoogleSignInAccount? = result.signInAccount
+      Timber.d("account display name is ${acct?.displayName}")
+      acct?.let { firebaseAuthWithGoogle(it) }
+    } else {
+      // Signed out, show unauthenticated UI.
+      Timber.d("result was not a success $result")
+    }
+  }
+
+  private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
+    Timber.d("firebaseAuthWithGoogle:" + acct.id)
+    showProgressDialog();
+
+    val credential: AuthCredential = GoogleAuthProvider.getCredential(acct.idToken, null)
+    auth?.let{
+      it.signInWithCredential(credential)
+          .addOnCompleteListener(this) { task ->
+            Timber.d("signInWithCredential:onComplete:" + task.isSuccessful)
+
+            // If sign in fails, display a message to the user. If sign in succeeds
+            // the auth state listener will be notified and logic to handle the
+            // signed in user can be handled in the listener.
+            if (!task.isSuccessful) {
+              Timber.w("signInWithCredential", task.exception)
+              Toast.makeText(this@MainActivity, "Authentication failed.",
+                  Toast.LENGTH_SHORT).show()
             }
-        } else {
-            // Request the GET_ACCOUNTS permission via a user dialog
-            EasyPermissions.requestPermissions(
-                    this,
-                    "This app needs to access your Google account (via Contacts).",
-                    REQUEST_PERMISSION_GET_ACCOUNTS,
-                    android.Manifest.permission.GET_ACCOUNTS);
-        }
+            hideProgressDialog()
+          }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        super.onActivityResult(requestCode, resultCode, data);
-        when(requestCode) {
-            REQUEST_ACCOUNT_PICKER -> {
-                if (resultCode == RESULT_OK && data != null &&
-                        data.getExtras() != null) {
-                    val accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME)
-                    if (accountName != null) {
-                        val settings: SharedPreferences = getPreferences(Context.MODE_PRIVATE)
-                        val editor = settings.edit()
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.apply();
-                        credential?.setSelectedAccountName(accountName);
-                        getResultsFromApi();
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getResultsFromApi() {
-        Timber.i("results from api")
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        EasyPermissions.onRequestPermissionsResult(
-                requestCode, permissions, grantResults, this);
-    }
-
-    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>?) {
-        //no op
-    }
-
-    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>?) {
-        //no op
-    }
-
+  }
 }
