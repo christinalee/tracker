@@ -3,16 +3,31 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:background="@color/navyBlue">
+                android:background="@android:color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textStyle="bold"
+        android:textSize="100sp"
+        android:textColor="@color/accentBlue"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:text="hello"/>
 
     <Button
         android:id="@+id/signInButton"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        android:background="@drawable/circle"
-        android:text="Press Me!"
-        android:fontFamily="sans-serif-smallcaps"
+        android:layout_width="270dp"
+        android:layout_height="60dp"
+        android:background="@drawable/rounded_rect"
+        android:text="Sign in"
+        android:fontFamily="sans-serif"
         android:textSize="22sp"
-        android:textColor="@color/darkGrey"/>
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="60dp"
+        android:textColor="@android:color/white"/>
 </RelativeLayout>
