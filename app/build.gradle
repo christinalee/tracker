@@ -36,6 +36,7 @@ dependencies {
 
     compile 'com.google.firebase:firebase-auth:9.0.2'
     compile 'com.google.android.gms:play-services-auth:9.0.2'
+    compile 'com.google.android.gms:play-services-drive:9.0.2'
 
     kapt 'com.android.databinding:compiler:2.1.0'
 }

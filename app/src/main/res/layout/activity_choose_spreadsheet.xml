@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textStyle="bold"
+        android:textSize="80sp"
+        android:textColor="@color/accentBlue"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:text="create a sheet"/>
+
+    <Button
+        android:id="@+id/createSheetButton"
+        android:layout_width="270dp"
+        android:layout_height="60dp"
+        android:background="@drawable/rounded_rect"
+        android:text="create"
+        android:fontFamily="sans-serif"
+        android:textSize="22sp"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="60dp"
+        android:textColor="@android:color/white"/>
+</RelativeLayout>

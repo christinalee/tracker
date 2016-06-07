@@ -7,7 +7,7 @@
                  android:icon="@mipmap/ic_launcher"
                  android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -16,7 +16,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SwipeableActivity"
+            android:name=".activity.SwipeableActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.ChooseSheetActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>

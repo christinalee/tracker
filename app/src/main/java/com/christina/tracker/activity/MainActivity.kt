@@ -1,8 +1,12 @@
-package com.christina.tracker
+package com.christina.tracker.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import com.christina.tracker.activity.BaseFragmentActivity
+import com.christina.tracker.BuildConfig
+import com.christina.tracker.NavigationUtils
+import com.christina.tracker.R
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -10,6 +14,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.Scope
+import com.google.android.gms.drive.Drive
 import com.google.firebase.auth.*
 import timber.log.Timber
 
@@ -29,27 +34,41 @@ class MainActivity: BaseFragmentActivity(), GoogleApiClient.OnConnectionFailedLi
   override fun onCreate(savedInstanceBundle: Bundle?) {
     super.onCreate(savedInstanceBundle)
 
+    if (BuildConfig.DEBUG) {
+      Timber.plant(Timber.DebugTree())
+    }
+
+    auth = FirebaseAuth.getInstance()
+
+    //If already auth'd, go to main screen
+    if (auth?.currentUser != null) {
+      //todo: should also check that a sheet has been chosen
+      auth?.currentUser?.let { NavigationUtils.goToChooseSheetActivity(this@MainActivity) }
+      return
+    }
+
     setContentView(R.layout.activity_sign_in)
 
     val gso: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(getString(R.string.default_web_client_id))
-        .requestScopes(Scope("https://www.googleapis.com/auth/spreadsheets"))
+        .requestScopes(Scope("https://www.googleapis.com/auth/spreadsheets"), Scope("https://www.googleapis.com/auth/drive"))
         .build()
 
 
     googleApiClient = GoogleApiClient.Builder(this)
         .enableAutoManage(this, this)
         .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+        .addScope(Scope("https://www.googleapis.com/auth/drive"))
         .build()
 
-    auth = FirebaseAuth.getInstance()
+
 
     authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
       val user: FirebaseUser? = firebaseAuth.currentUser
       if (user != null) {
         // User is signed in
         Timber.d("onAuthStateChanged:signed_in:" + user.uid);
-        NavigationUtils.goToSwipeableActivity(this@MainActivity)
+        NavigationUtils.goToChooseSheetActivity(this@MainActivity)
       } else {
         // User is signed out
         Timber.d("onAuthStateChanged:signed_out");
